@@ -13,7 +13,7 @@ def create_vectorstore(pdf_path):
     documents = loader.load()
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 4000,
+        chunk_size = 1000,
         chunk_overlap = 200
     )
 

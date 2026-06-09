@@ -1,14 +1,10 @@
 from app.schemas import QuestionRequest
 from app.rag import generate_answer
 
-from app.ingest import create_vectorstore
-
-create_vectorstore("data/paper.pdf")
-
 from fastapi import FastAPI
 
 app = FastAPI(
-    Title = "AI Reseacher Asistant"
+    title = "AI Reseacher Asistant"
 )
 
 @app.get("/")
@@ -17,9 +13,9 @@ def home():
         "message": "Wellcome to AI Research Assistant"
     }
 
-@app.get("/ask")
-def ask(question: QuestionRequest):
+@app.post("/ask")
+def ask(request: QuestionRequest):
     
     return generate_answer(
-        question
+        request.question
     )
