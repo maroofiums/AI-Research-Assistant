@@ -1,8 +1,8 @@
 # AI Research Assistant
 
-A Retrieval-Augmented Generation (RAG) application built with FastAPI, ChromaDB, LangChain, HuggingFace Embeddings, and Gemini.
+A Retrieval-Augmented Generation (RAG) application built using FastAPI, LangChain, ChromaDB, and Mistral AI.
 
-The system allows users to ask questions about PDF documents by retrieving relevant document chunks and generating grounded answers using an LLM.
+This project allows users to upload PDF documents and ask questions about their content. The system retrieves the most relevant document chunks from a vector database and generates grounded answers using Mistral AI.
 
 ---
 
@@ -10,13 +10,13 @@ The system allows users to ask questions about PDF documents by retrieving relev
 
 * PDF document ingestion
 * Automatic text chunking
-* Local embeddings using MiniLM
+* Mistral Embeddings
 * ChromaDB vector storage
-* Semantic document retrieval
-* Gemini-powered answer generation
-* Source page citations
+* Semantic search and retrieval
+* Mistral-powered answer generation
+* Source citations
 * FastAPI REST API
-* Swagger API documentation
+* Interactive Swagger documentation
 
 ---
 
@@ -33,14 +33,13 @@ The system allows users to ask questions about PDF documents by retrieving relev
 
 ### Embeddings
 
-* all-MiniLM-L6-v2
-* HuggingFace Embeddings
+* Mistral AI Embeddings
 
 ### Vector Database
 
 * ChromaDB
 
-### LLM
+### Large Language Model
 
 * Mistral Small
 
@@ -65,7 +64,7 @@ The system allows users to ask questions about PDF documents by retrieving relev
 ├── vectorstore
 │   └── chroma.sqlite3
 │
-├── Readme.md
+├── README.md
 └── requirements.txt
 ```
 
@@ -73,15 +72,15 @@ The system allows users to ask questions about PDF documents by retrieving relev
 
 ## Installation
 
-### 1. Clone Repository
+### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/AI-Research-Assistant.git
+git clone <repository-url>
 
 cd AI-Research-Assistant
 ```
 
-### 2. Create Virtual Environment
+### Create Virtual Environment
 
 ```bash
 python -m venv .venv
@@ -89,19 +88,19 @@ python -m venv .venv
 
 Activate:
 
-Windows
+Windows:
 
 ```bash
 .venv\Scripts\activate
 ```
 
-Linux / macOS
+Linux/macOS:
 
 ```bash
 source .venv/bin/activate
 ```
 
-### 3. Install Dependencies
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -114,16 +113,14 @@ pip install -r requirements.txt
 Create a `.env` file in the project root.
 
 ```env
-MISTRAL_API_KEY=your_api_key_here
+MISTRAL_API_KEY=your_mistral_api_key
 ```
-
-Get a Gemini API key from Google AI Studio.
 
 ---
 
-## Building the Vector Database
+## Build Vector Database
 
-Place your PDF inside the `data` folder.
+Place a PDF inside the `data` directory.
 
 Example:
 
@@ -140,36 +137,30 @@ from app.ingest import create_vectorstore
 create_vectorstore("data/deeplearning.pdf")
 ```
 
-This will:
+This process:
 
-1. Load the PDF
-2. Split text into chunks
-3. Generate embeddings
-4. Store vectors in ChromaDB
-
-Output:
-
-```text
-Vector store created successfully.
-```
+1. Loads the PDF
+2. Splits text into chunks
+3. Generates embeddings
+4. Stores vectors in ChromaDB
 
 ---
 
-## Running the Application
+## Run the Application
 
-Start the FastAPI server:
+Start FastAPI:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Server:
+Server URL:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-Swagger UI:
+Swagger Documentation:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -177,11 +168,44 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## API Usage
+## API Endpoints
 
-### Ask Question
+### Home
 
-Endpoint:
+```http
+GET /
+```
+
+Response:
+
+```json
+{
+  "message": "Welcome to AI Research Assistant"
+}
+```
+
+---
+
+### Upload PDF
+
+```http
+POST /upload
+```
+
+Upload a PDF file to create embeddings and store them in ChromaDB.
+
+Response:
+
+```json
+{
+  "message": "Document uploaded",
+  "chunks": 125
+}
+```
+
+---
+
+### Ask Questions
 
 ```http
 POST /ask
@@ -203,7 +227,8 @@ Response:
   "sources": [
     {
       "page": 12,
-      "source": "data/deeplearning.pdf"
+      "source": "data/deeplearning.pdf",
+      "preview": "Backpropagation computes gradients..."
     }
   ]
 }
@@ -216,11 +241,11 @@ Response:
 ```text
 PDF
  ↓
-Document Loader
+PyPDFLoader
  ↓
-Text Splitter
+RecursiveCharacterTextSplitter
  ↓
-MiniLM Embeddings
+Mistral Embeddings
  ↓
 ChromaDB
  ↓
@@ -228,40 +253,43 @@ Retriever
  ↓
 Prompt Template
  ↓
-Mistral
+Mistral Small
  ↓
 Answer + Sources
 ```
 
 ---
 
+## Example Workflow
+
+1. Upload a PDF document
+2. Generate embeddings
+3. Store vectors in ChromaDB
+4. Ask questions
+5. Retrieve relevant chunks
+6. Generate grounded answers
+7. Return answer with citations
+
+---
+
 ## Future Improvements
 
-* Multiple PDF support
-* PDF upload endpoint
-* Conversation memory
-* Hybrid search (BM25 + Vector Search)
-* Reranking
+* Multi-document support
+* Chat history
 * Streaming responses
+* Hybrid Search (BM25 + Vector Search)
+* Reranking
 * LangGraph integration
 * Docker deployment
 * PostgreSQL + PGVector
+* User authentication
 
 ---
 
-## Example Workflow
+## Known Issues
 
-1. Add a PDF to the data folder
-2. Run document ingestion
-3. Start FastAPI server
-4. Open Swagger UI
-5. Ask questions about the document
-6. Receive grounded answers with citations
-
----
-
-## License
-
-This project is licensed under the MIT License.
+* Large PDFs may take time to embed.
+* Mistral Embeddings require a valid API key.
+* Network interruptions may cause embedding failures during ingestion.
 
 ---

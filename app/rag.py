@@ -50,6 +50,13 @@ def retrieve(question):
 
     docs = retriever.invoke(question)
 
+    print("\n=== Retrieved Documents ===\n")
+
+    for i, doc in enumerate(docs, start=1):
+        print(f"Chunk {i}")
+        print(doc.page_content[:500])
+        print("-" * 50)
+
     return docs
 
 def generate_answer(question: str):
@@ -74,7 +81,8 @@ def generate_answer(question: str):
         "sources": [
             {
                 "page": doc.metadata.get("page"),
-                "source": doc.metadata.get("source")
+                "source": doc.metadata.get("source"),
+                "preview": doc.page_content[:200] + "..."
             }
             for doc in docs
         ]
