@@ -3,6 +3,13 @@ from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 
+from app.mlflow_utils import (
+    start_rag_run,
+    log_rag_metrics
+)
+
+import time
+
 load_dotenv()
 
 embedding_model = MistralAIEmbeddings()
@@ -60,31 +67,54 @@ def retrieve(question):
     return docs
 
 def generate_answer(question: str):
-    docs = retrieve(question)
 
-    context = "\n\n".join(
-        doc.page_content   
-        for doc in docs
-    )
+    start = time.time()
 
-    chain = prompt | model
+    def start_rag_run():
+        docs = retrieve(question)
 
-    res = chain.invoke(
-        {
-            "context":context,
-            "question":question
-        }   
-    )
-
-    return {
-        "answer": res.content,
-        "sources": [
-            {
-                "page": doc.metadata.get("page"),
-                "source": doc.metadata.get("source"),
-                "preview": doc.page_content[:200] + "..."
-            }
+        context = "\n\n".join(
+            doc.page_content   
             for doc in docs
-        ]
-    }
+        )
+
+        chain = prompt | model
+
+        res = chain.invoke(
+            {
+                "context":context,
+                "question":question
+            }   
+        )
+
+        latency = time.time() - start
+
+        mlflow.log_param(
+            "llm",
+            "mistral-small-latest"
+        )
+
+        mlflow.log_param(
+            "embedding_model",
+            "mistral-embed"
+        )
+
+        log_rag_metrics(
+            question=question,
+            answer=response.content,
+            retrieved_docs=docs,
+            latency=latency
+        )
+
+        return {
+            "answer": res.content,
+            "sources": [
+                {
+                    "page": doc.metadata.get("page"),
+                    "source": doc.metadata.get("source"),
+                    "preview": doc.page_content[:200] + "..."
+                }
+                for doc in docs
+            ]
+        }
 
