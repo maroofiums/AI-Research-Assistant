@@ -75,7 +75,7 @@ This project allows users to upload PDF documents and ask questions about their 
 ### Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/maroofiums/AI-Research-Assistant.git
 
 cd AI-Research-Assistant
 ```
